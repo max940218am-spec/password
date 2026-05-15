@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SecureAuth</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0f172a;--card:#111827;--card2:#1e293b;--line:#334155;--text:#f8fafc;--sub:#94a3b8;--primary:#3b82f6;--primary2:#2563eb;--green:#22c55e;--yellow:#facc15;--red:#ef4444;--shadow:0 20px 50px rgba(0,0,0,.45)}
+body{min-height:100vh;background:radial-gradient(circle at top left,#1e3a8a 0%,transparent 30%),radial-gradient(circle at bottom right,#0f766e 0%,transparent 30%),var(--bg);display:flex;justify-content:center;align-items:center;padding:40px 20px;font-family:'Noto Sans TC',sans-serif;color:var(--text)}
+.card{width:100%;max-width:520px;background:rgba(17,24,39,.92);border:1px solid rgba(255,255,255,.08);border-radius:28px;padding:32px;backdrop-filter:blur(14px);box-shadow:var(--shadow);position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(59,130,246,.08),transparent,rgba(34,197,94,.08));pointer-events:none}
+.logo{text-align:center;margin-bottom:28px}
+.logo-icon{width:72px;height:72px;margin:0 auto 14px;border-radius:22px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--primary),#06b6d4);font-size:34px;color:white;box-shadow:0 10px 30px rgba(59,130,246,.45)}
+.logo h1{font-size:32px;font-family:'DM Sans',sans-serif;font-weight:600;letter-spacing:.5px}
+.logo p{color:var(--sub);margin-top:6px;font-size:14px}
+.tabs{display:flex;gap:10px;margin-bottom:24px}
+.tab{flex:1;background:#0f172a;color:var(--sub);padding:12px;border-radius:14px;font-size:14px;cursor:pointer;transition:.25s;border:1px solid transparent;font-family:inherit}
+.tab:hover{color:white;border-color:rgba(255,255,255,.1)}
+.tab.on{background:linear-gradient(135deg,var(--primary),var(--primary2));color:white;font-weight:600;box-shadow:0 8px 20px rgba(59,130,246,.35)}
+.sec{display:none;animation:fade .35s ease}.sec.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.f{margin-bottom:18px}
+.f label{display:block;margin-bottom:8px;font-size:14px;color:#e2e8f0;font-weight:500}
+.iw{position:relative}
+.ic{position:absolute;top:50%;left:14px;transform:translateY(-50%);color:#64748b;font-size:18px}
+input{width:100%;height:52px;border-radius:16px;border:1px solid var(--line);background:#0f172a;color:white;padding:0 48px 0 46px;font-size:15px;transition:.25s;font-family:inherit}
+input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 4px rgba(59,130,246,.15)}
+input::placeholder{color:#64748b}
+.eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);border:none;background:transparent;color:#94a3b8;cursor:pointer;width:32px;height:32px;border-radius:10px;transition:.2s}
+.eye:hover{background:rgba(255,255,255,.06);color:white}
+.btn{width:100%;border:none;border-radius:16px;height:52px;font-size:15px;font-weight:600;cursor:pointer;transition:.25s;font-family:inherit}
+.bp{background:linear-gradient(135deg,var(--primary),var(--primary2));color:white;box-shadow:0 10px 24px rgba(37,99,235,.35)}
+.bp:hover{transform:translateY(-2px);filter:brightness(1.05)}
+.bp:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.bg{background:#1e293b;color:#cbd5e1;border:1px solid rgba(255,255,255,.08)}
+.bg:hover{background:#334155}
+.dv{text-align:center;color:#64748b;margin:18px 0;font-size:13px;position:relative}
+.dv::before,.dv::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:#334155}
+.dv::before{left:0}.dv::after{right:0}
+.fpl{margin-top:10px;background:none;border:none;color:#60a5fa;cursor:pointer;font-size:13px}
+.fpl:hover{text-decoration:underline}
+#tk{display:none;margin-bottom:18px;padding:14px 16px;border-radius:14px;font-size:14px;font-weight:500}
+#tk.ok{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(74,222,128,.2)}
+#tk.err{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(248,113,113,.2)}
+#tk.info{background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(96,165,250,.2)}
+.sw{margin-top:12px;background:#0f172a;border:1px solid #1e293b;border-radius:18px;padding:14px;display:none}
+.sr{display:flex;justify-content:space-between;margin-bottom:10px;font-size:13px}
+.slb.l1{color:#f87171}.slb.l2{color:#facc15}.slb.l3{color:#4ade80}
+.snum{color:#cbd5e1}
+.pt{width:100%;height:10px;border-radius:999px;background:#1e293b;overflow:hidden;margin-bottom:14px}
+.pf{height:100%;width:0;border-radius:999px;transition:.3s}
+.pf.l1{background:#ef4444}.pf.l2{background:#facc15}.pf.l3{background:#22c55e}
+.cks{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.ck{font-size:12px;padding:8px 10px;border-radius:12px;display:flex;align-items:center;gap:6px;background:#111827;border:1px solid #1e293b;color:#94a3b8}
+.ck.ok{color:#4ade80;border-color:rgba(74,222,128,.25);background:rgba(34,197,94,.08)}
+.ck.bad{color:#f87171}
+.sgw{margin-top:14px;display:none}
+.st{margin-bottom:10px;font-size:13px;color:#facc15;font-weight:600}
+.si{font-size:12px;color:#cbd5e1;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.mh{margin-top:10px;font-size:13px;display:none}
+.mh.ok{color:#4ade80}.mh.no{color:#f87171}
+.warn{display:flex;gap:12px;align-items:flex-start;padding:16px;border-radius:18px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.2);color:#fde68a;margin-bottom:20px}
+.warn i{font-size:22px}
+.sa-box{background:#0f172a;border:1px solid #1e293b;border-radius:22px;padding:20px}
+.sa-title{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:600;margin-bottom:10px}
+.da-row{display:flex;gap:10px;margin-bottom:16px}
+.da-row input{flex:1}
+.da-btn{min-width:120px;border:none;border-radius:16px;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;font-weight:600;cursor:pointer;transition:.25s;font-family:inherit}
+.da-btn:hover{transform:translateY(-2px)}.da-btn:disabled{opacity:.5;cursor:not-allowed}
+.da-log{height:240px;overflow:auto;background:#020617;border:1px solid #1e293b;border-radius:18px;padding:14px;font-family:monospace;font-size:12px;line-height:1.7;margin-bottom:16px}
+.da-log::-webkit-scrollbar{width:8px}
+.da-log::-webkit-scrollbar-thumb{background:#334155;border-radius:999px}
+.hit{color:#4ade80}.miss{color:#94a3b8}
+.da-res{display:none;padding:14px 16px;border-radius:16px;margin-bottom:16px;font-size:14px;font-weight:600}
+.da-res.found{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(248,113,113,.25)}
+.da-res.safe{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(74,222,128,.25)}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:18px}
+.stat{background:#111827;border:1px solid #1e293b;border-radius:16px;padding:14px}
+.v{font-size:18px;font-weight:700;margin-bottom:4px}
+.l{color:#94a3b8;font-size:12px}
+.info-box{display:none;line-height:1.9;background:#111827;border:1px solid #1e293b;border-radius:18px;padding:18px;font-size:13px;color:#cbd5e1}
+@media(max-width:640px){
+  body{padding:20px 14px}
+  .card{padding:24px 18px;border-radius:22px}
+  .tabs{flex-direction:column}
+  .da-row{flex-direction:column}
+  .stats,.cks{grid-template-columns:1fr}
+  .logo h1{font-size:28px}
+}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon"><i class="ti ti-shield-lock"></i></div>
+    <h1>SecureAuth</h1><p>安全登入系統</p>
+  </div>
+  <div class="tabs">
+    <button class="tab on" onclick="go('li')">登入</button>
+    <button class="tab" onclick="go('rg')">建立帳號</button>
+    <button class="tab" onclick="go('sa')">🔍 安全分析</button>
+  </div>
+  <div id="tk"></div>
+
+  <div id="li" class="sec on">
+    <div class="f"><label>帳號</label><div class="iw"><i class="ti ti-user ic"></i><input id="lu" type="text" placeholder="帳號或 Email"></div></div>
+    <div class="f">
+      <label>密碼</label>
+      <div class="iw"><i class="ti ti-lock ic"></i><input id="lp" type="password" placeholder="輸入密碼"><button class="eye" onclick="ep('lp',this)"><i class="ti ti-eye"></i></button></div>
+      <button class="fpl" onclick="go('fp')">忘記密碼？</button>
+    </div>
+    <button class="btn bp" onclick="login()">登入</button>
+    <div class="dv">或</div>
+    <button class="btn bg" onclick="go('rg')">還沒有帳號？立即建立 →</button>
+  </div>
+
+  <div id="rg" class="sec">
+    <div class="f"><label>帳號</label><div class="iw"><i class="ti ti-user ic"></i><input id="ru" type="text" placeholder="設定帳號" oninput="chk()"></div></div>
+    <div class="f"><label>Email</label><div class="iw"><i class="ti ti-mail ic"></i><input id="re" type="email" placeholder="your@email.com" oninput="chk()"></div></div>
+    <div class="f">
+      <label>密碼</label>
+      <div class="iw"><i class="ti ti-lock ic"></i><input id="rp" type="password" placeholder="設定密碼" oninput="rs(this,'A')"><button class="eye" onclick="ep('rp',this)"><i class="ti ti-eye"></i></button></div>
+      <div id="swA" class="sw"></div>
+    </div>
+    <div class="f">
+      <label>確認密碼</label>
+      <div class="iw"><i class="ti ti-lock-check ic"></i><input id="rp2" type="password" placeholder="再次輸入" oninput="mp('rp','rp2','mhA');chk()"><button class="eye" onclick="ep('rp2',this)"><i class="ti ti-eye"></i></button></div>
+      <div id="mhA" class="mh"></div>
+    </div>
+    <button class="btn bp" id="rb" onclick="reg()" disabled>建立帳號</button>
+    <div class="dv">或</div>
+    <button class="btn bg" onclick="go('li')">← 返回登入</button>
+  </div>
+
+  <div id="fp" class="sec">
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div style="width:48px;height:48px;background:rgba(251,191,36,.15);border-radius:14px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:.75rem"><i class="ti ti-mail-forward" style="font-size:24px;color:#fbbf24"></i></div>
+      <div style="font-size:16px;font-weight:600;color:#f1f5f9">忘記密碼</div>
+      <div style="font-size:12px;color:#94a3b8;margin-top:4px">輸入你的 Email，系統將寄送臨時密碼</div>
+    </div>
+    <div class="f"><label>收件 Email</label><div class="iw"><i class="ti ti-mail ic"></i><input id="fe" type="email" placeholder="your@email.com"></div></div>
+    <button class="btn bp" id="fpbtn" onclick="forgotPw()"><i class="ti ti-send" style="font-size:14px;vertical-align:-1px;margin-right:6px"></i>寄送臨時密碼</button>
+    <div class="dv">或</div>
+    <button class="btn bg" onclick="go('li')">← 返回登入</button>
+  </div>
+
+  <div id="rp_sec" class="sec">
+    <div class="warn"><i class="ti ti-alert-triangle"></i><div><b>安全提醒</b><br>你使用臨時密碼登入，請立即設定新密碼。</div></div>
+    <div class="f">
+      <label>新密碼</label>
+      <div class="iw"><i class="ti ti-lock ic"></i><input id="np" type="password" placeholder="設定新密碼" oninput="rs(this,'B')"><button class="eye" onclick="ep('np',this)"><i class="ti ti-eye"></i></button></div>
+      <div id="swB" class="sw"></div>
+    </div>
+    <div class="f">
+      <label>確認新密碼</label>
+      <div class="iw"><i class="ti ti-lock-check ic"></i><input id="np2" type="password" placeholder="再次輸入新密碼" oninput="mp('np','np2','mhB');chkR()"><button class="eye" onclick="ep('np2',this)"><i class="ti ti-eye"></i></button></div>
+      <div id="mhB" class="mh"></div>
+    </div>
+    <button class="btn bp" id="rb2" onclick="doReset()" disabled>確認更新密碼</button>
+  </div>
+
+  <div id="sa" class="sec">
+    <div class="sa-box">
+      <div class="sa-title"><i class="ti ti-book-2"></i>字典攻擊模擬</div>
+      <div style="font-size:13px;color:var(--sub);margin-bottom:16px;line-height:1.6">輸入任意密碼，模擬攻擊者用常見密碼字典逐一比對的過程。</div>
+      <div class="da-row">
+        <input id="da-pw" type="text" placeholder="輸入要測試的密碼…" oninput="daReset()">
+        <button class="da-btn" id="da-go" onclick="startDA()">▶ 開始攻擊</button>
+      </div>
+      <div class="da-log" id="da-log"><span style="color:#334155">等待輸入密碼…</span></div>
+      <div class="da-res" id="da-res"></div>
+      <div class="stats">
+        <div class="stat"><div class="v" id="s-cnt">0</div><div class="l">已比對</div></div>
+        <div class="stat"><div class="v" id="s-total">—</div><div class="l">字典總筆數</div></div>
+        <div class="stat"><div class="v" id="s-spd">—</div><div class="l">比對/秒</div></div>
+        <div class="stat"><div class="v" id="s-time">—</div><div class="l">耗時(ms)</div></div>
+        <div class="stat"><div class="v" id="s-pct">0%</div><div class="l">進度</div></div>
+        <div class="stat"><div class="v" id="s-rank">—</div><div class="l">危險排名</div></div>
+        <div class="stat"><div class="v" id="s-threat">—</div><div class="l">威脅等級</div></div>
+        <div class="stat"><div class="v" id="s-char">—</div><div class="l">字元集大小</div></div>
+        <div class="stat"><div class="v" id="s-ent">—</div><div class="l">熵值(bits)</div></div>
+        <div class="stat"><div class="v" id="s-est">—</div><div class="l">理論破解時間</div></div>
+      </div>
+      <div class="info-box" id="da-info"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+emailjs.init({publicKey:'G1iBcJUanJcj7psLS'});
+const SVC='service_22sqf1n',TPL='template_oy8xzck';
+const db={}, $=id=>document.getElementById(id), val=id=>$(id).value.trim();
+const score={A:0,B:0}; let curUser=null,daTimer=null;
+
+const COM_RAW={
+  numbers:['123456','12345678','123456789','1234567890','12345','1234','123123','654321','111111','000000','1111111','123321','666666','112233','121212','1234567','7777777','1q2w3e4r','1q2w3e','0987654321','987654321','147258369','11111111','88888888','55555555','99999999','12341234','11223344','10203040','13579246','24681357','00000000','12121212','23232323','45454545','11111','22222','33333','44444','55555','66666','77777','88888','99999','10101','31337','8675309','90210','19841','20001','19900101','12312','45678','56789','67890','11122','33344','55566','77788','99900','246810','135790','11235813','31415926','27182818','14142135','16180339','99991231','20231231','22222222','33333333','44444444','66666666','77777777','10000000'],
+  keyboard:['qwerty','qwertyuiop','qwerty123','qazwsx','1q2w3e','zxcvbn','asdfgh','asdfghjkl','zxcvbnm','qwerasdf','poiuytrewq','mnbvcxz','qweasdzxc','1qaz2wsx','!qaz2wsx','qwerty1','qwerty12','asdfghjk','qwertyui','1qazxsw2','2wsxcde3','wsxedc','rfvtgb','yhnujm','nbvcxz','lkjhgf','poiuyt','mnbvcx','zxcvb','rewq','trewq','mnbv','vbnm','asdf','fdsa','hjkl','lkjh','zxcvbnm1','qazwsxedc','qwerty!','asdf1234','zxcv1234','1234qwer','poiuyt123','lkjhgf123','mnbvcx123','qazxsw','wsxzaq','edcrfv','rfvtgb1','tgbyhn','yhnujm1','qweqweqwe','asdasdasd'],
+  common:['password','password1','password2','password3','pass','pass123','letmein','welcome','login','admin','admin123','root','toor','test','guest','user','default','master','changeme','abc123','iloveyou','monkey','dragon','sunshine','princess','football','baseball','shadow','superman','batman','mustang','access','hello','hello123','michael','jessica','charlie','donald','696969','trustno1','starwars','whatever','secret','hunter2','corvette','solo','matrix','buster','camaro','peanut','hammer','silver','falcon','winter','knight','summer','coffee','orange','cookie','butter','flower','rabbit','turtle','wizard','yankee','alpha','bravo','delta','golf','hotel','india','juliet','kilo','lima','oscar','papa','romeo','tango','uniform','victor','whiskey','xray','zulu','abc','abcd','test123','demo','sample','temp','null','root123','admin1234','passwd','pass1','pass12','password12','password123','abc1234','1234abc','asd123','qwe123','pass1234','login123','hello1','hello12','hello1234','world','test1','test12','testtest','adminadmin','rootroot','iloveyou1','iloveyou123','monkey123','dragon123','sunshine1','princess1','football1','baseball1','shadow1','superman1','batman1','welcome1','welcome123','letmein1','letmein123','master1','master123','default1','guest123','user123','username','mypassword','mypass','pwd','secret1','secret123','hunter','hunter123','cheese','chocolate','cookie123','computer','internet','network','server','system','database','windows','linux','ubuntu','android','iphone','google','facebook','twitter','amazon','netflix','youtube','gmail','yahoo','apple','samsung','nintendo','playstation','xbox','pokemon','minecraft','fortnite','discord','telegram','whatsapp','instagram','tiktok','spotify','tesla','bitcoin','ethereum','crypto','hacker'],
+  names:['michael','jessica','daniel','thomas','jordan','hunter','ranger','dakota','morgan','taylor','casey','riley','peyton','avery','quinn','blake','reagan','harley','alexis','ashley','brittany','amanda','melissa','jennifer','stephanie','chelsea','megan','rachel','sarah','emily','madison','hannah','abigail','samantha','elizabeth','natalie','victoria','olivia','sophia','isabella','william','james','john','robert','david','richard','joseph','charles','christopher','andrew','matthew','anthony','donald','mark','paul','steven','george','kenneth','joshua','kevin','brian','edward','ronald','timothy','jason','jeffrey','ryan','jacob','gary','nicholas','eric','jonathan','stephen','larry','justin','scott','brandon','benjamin','samuel','raymond','gregory','frank','alexander','patrick','jack','dennis','tyler','aaron','jose','adam','henry','nathan','douglas','zachary','peter','kyle','noah','ethan','jeremy','christian','walter','keith','austin','roger','terry','sean','carl','harold','dylan','arthur','alex','max','kate','emma','anna','lisa','mary','susan','karen','linda','barbara','betty','dorothy','sandra','donna','carol','ruth','sharon','michelle','laura','chris','mike','dave','steve','tom','bob','jim','sam','joe','nick','dan','ben','jake','josh','ryan1','kevin1','brian1','tony','tony1','jason1','justin1','brandon1','tyler1','aaron1','adam1','evan','evan1','derek','travis','cole','zach','luke','owen','ian','leo','eli','oliver','liam','mason','aiden','lucas','logan','jackson','carter','wyatt','gabriel','julian','mateo'],
+  patterns:['abc123','aaa','aaaa','aaaaaa','qqqqqq','123abc','pass1234','test123','user123','admin1','root123','123qwe','qwe123','1111','2222','3333','0000','9999','abcdef','abcd1234','p@ssword','p@ss123','pa$$word','passw0rd','passwd','P@ssw0rd','Admin123','Welcome1','Letmein1','dragon1','princess1','master1','shadow1','P@ss123','Adm1n','4dm1n','p4ssw0rd','pa55word','s3cur1ty','s3cret','h4cker','t3st','l0gin','w3lcome','r00t','t00r','gu3st','m4ster','Password1!','Password123!','Admin1234!','Welcome123!','abcabcabc','123123123','abcabc','123456abc','abc123456','qweqwe','asdasd','zxczxc','1111aaaa','aaaa1111','abcd','abcde','abcdefg','abcdefgh','aaaabbbb','aabbccdd','iloveyou!','pass!','123!','1234!','admin!','test!','P@$$w0rd','S3cur!ty','Admin@123','Pass@123','Test@123','Hello@123','Welcome@1','pass2023','pass2024','admin2023','admin2024','test2023','test2024','login2024','password2024','abc@123','pass#123','root@123','hello@world','@dmin123','p@ssw0rd1','Pa$$word1','S3cr3t!','W3lc0me!','L3tm3!n','M@ster1','Acc3ss1']
+};
+const COM=[...new Set([...COM_RAW.numbers,...COM_RAW.keyboard,...COM_RAW.common,...COM_RAW.names,...COM_RAW.patterns])];
+const COM_CAT={};
+Object.entries(COM_RAW).forEach(([c,l])=>l.forEach(w=>{if(!COM_CAT[w])COM_CAT[w]=c;}));
+const SEQ=/(012|123|234|345|456|567|678|789|890|abc|bcd|cde|def|efg|fgh|ghi|hij|ijk|jkl|klm|lmn|mno|nop|opq|pqr|qrs|rst|stu|tuv|uvw|vwx|wxy|xyz|qwe|wer|ert|rty|tyu|yui|uio|iop|asd|sdf|dfg|ghj|hjk|zxc|xcv|cvb|vbn|bnm)/i;
+const CK_LABELS=['長度 ≥ 8','長度 ≥ 12','小寫字母','大寫字母','數字','特殊符號','無重複字元','無連續字串','非常見密碼'];
+const TIPS=['密碼至少需要 8 個字元','建議延長至 12 個字元以上','加入小寫字母（a-z）','加入大寫字母（A-Z）','加入數字（0-9）','加入特殊符號（!@#$%...）','避免連續重複相同字元','避免鍵盤連續字串（如 qwerty）','此為常見密碼，請更換'];
+const CAT_LABEL={numbers:'純數字組合',keyboard:'鍵盤連續字串',common:'常見密碼',names:'人名/單字',patterns:'變形模式'};
+
+// 動態產生密碼強度面板 DOM（首次呼叫時初始化，避免 HTML 重複）
+function initSW(id){
+  const el=$(id); if(el.dataset.init)return;
+  el.innerHTML=`<div class="sr"><span class="slb" id="sl${id}">請輸入密碼</span><span class="snum" id="sn${id}">0/100 分</span></div><div class="pt"><div class="pf" id="pf${id}"></div></div><div class="cks" id="cks${id}"></div><div class="sgw" id="sg${id}"><div class="st">改善建議</div><div id="sl2${id}"></div></div>`;
+  $('cks'+id).innerHTML=CK_LABELS.map((l,i)=>`<span class="ck" id="ck${id}${i}"><i class="ti ti-circle"></i>${l}</span>`).join('');
+  el.dataset.init=1;
+}
+// 計算密碼強度分數（0–100）與 9 項條件布林陣列
+function calc(v){
+  const r=[v.length>=8,v.length>=12,/[a-z]/.test(v),/[A-Z]/.test(v),/\d/.test(v),/[^A-Za-z0-9]/.test(v),!/(.).*\1{2,}/.test(v),!SEQ.test(v),!COM.includes(v.toLowerCase())];
+  let s=r.reduce((a,ok,i)=>a+([15,15,10,10,10,15,5,5,5][i]*(ok?1:0)),0);
+  if(v.length>=16)s+=10; if(new Set(v).size/v.length>0.7)s+=5;
+  return{s:Math.min(100,s),r};
+}
+// 密碼輸入時即時更新強度面板（k='A' 建立帳號 / 'B' 重設密碼）
+function rs(inp,k){
+  const v=inp.value,sw=$('sw'+k);
+  if(!v){sw.style.display='none';score[k]=0;chk();chkR();return;}
+  initSW('sw'+k); sw.style.display='block';
+  const{s,r}=calc(v); score[k]=s;
+  const lv=s<40?'l1':s<70?'l2':'l3';
+  $('slsw'+k).textContent={l1:'弱 ⚠',l2:'中 ◑',l3:'強 ✓'}[lv];
+  $('slsw'+k).className='slb '+lv;
+  $('snsw'+k).textContent=s+'/100 分';
+  const pf=$('pfsw'+k); pf.style.width=s+'%'; pf.className='pf '+lv;
+  r.forEach((ok,i)=>{const e=$('cksw'+k+i);e.className='ck '+(ok?'ok':'bad');e.querySelector('i').className=ok?'ti ti-check':'ti ti-x';});
+  const sg=[];
+  if(!r[0])sg.push(TIPS[0]);else if(!r[1])sg.push(TIPS[1]);
+  [2,3,4,5,6,7,8].forEach(i=>{if(!r[i])sg.push(TIPS[i]);});
+  $('sgsw'+k).style.display=sg.length?'block':'none';
+  $('sl2sw'+k).innerHTML=sg.map(t=>`<div class="si"><i class="ti ti-bulb"></i>${t}</div>`).join('');
+  chk();chkR();
+}
+// 比對兩次密碼是否一致，顯示相符／不相符提示
+function mp(a,b,m){const p1=$(a).value,p2=$(b).value,el=$(m);if(!p2){el.style.display='none';return;}el.style.display='block';const ok=p1===p2;el.textContent=ok?'✓ 密碼相符':'✗ 密碼不相符';el.className=ok?'mh ok':'mh no';}
+// 切換密碼欄位顯示／隱藏
+function ep(id,b){const e=$(id),s=e.type==='password';e.type=s?'text':'password';b.querySelector('i').className=s?'ti ti-eye-off':'ti ti-eye';}
+// 切換頁籤並隱藏 Toast
+function go(t){document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('on',i===({li:0,rg:1,sa:2}[t]??-1)));document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));$(t).classList.add('on');$('tk').style.display='none';}
+// 顯示 Toast 通知（ok／err／info），成功訊息 5 秒後自動消失
+function toast(m,t){const e=$('tk');e.textContent=m;e.className=t;e.style.display='block';if(t==='ok')setTimeout(()=>e.style.display='none',5000);}
+// 產生 10 碼隨機臨時密碼（排除易混淆字元）
+function randPw(){const c='ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%';return Array.from({length:10},()=>c[Math.random()*c.length|0]).join('');}
+// 計算 Shannon 熵值（bits）：反映密碼資訊量，越高越難猜
+function entropy(pw){const f={};for(const c of pw)f[c]=(f[c]||0)+1;const n=pw.length;return -Object.values(f).reduce((s,v)=>{const p=v/n;return s+p*Math.log2(p);},0)*n;}
+// 將熵值轉換為人類可讀的理論破解時間（假設每秒 100 億次）
+function crackTime(b){const s=Math.pow(2,b)/1e10;if(s<.001)return '瞬間';if(s<1)return (s*1000).toFixed(1)+' 毫秒';if(s<60)return s.toFixed(1)+' 秒';if(s<3600)return (s/60).toFixed(1)+' 分鐘';if(s<86400)return (s/3600).toFixed(1)+' 小時';if(s<31536000)return (s/86400).toFixed(0)+' 天';if(s<3153600000)return (s/31536000).toFixed(0)+' 年';return '> 百億年';}
+// 估算密碼字元集大小（小寫26＋大寫26＋數字10＋符號32）
+function csSize(pw){let s=0;if(/[a-z]/.test(pw))s+=26;if(/[A-Z]/.test(pw))s+=26;if(/\d/.test(pw))s+=10;if(/[^a-zA-Z0-9]/.test(pw))s+=32;return s||10;}
+// 產生臨時密碼並透過 EmailJS 寄送，登入後強制重設
+async function forgotPw(){
+  const email=val('fe');
+  if(!email.includes('@'))return toast('請輸入有效的 Email','err');
+  const btn=$('fpbtn');
+  btn.disabled=true;btn.innerHTML='<i class="ti ti-loader-2" style="font-size:14px;vertical-align:-1px;margin-right:6px"></i>寄送中…';
+  toast('正在寄送臨時密碼…','info');
+  const tmp=randPw();
+  const found=Object.keys(db).find(u=>db[u].e===email);
+  if(found){db[found].p=tmp;db[found].tmp=true;}else{db['__'+email]={e:email,p:tmp,tmp:true};}
+  try{
+    await emailjs.send(SVC,TPL,{to_email:email,user:email,temp_pass:tmp});
+    toast('✓ 臨時密碼已寄至 '+email,'ok');
+    setTimeout(()=>{$('fe').value='';go('li');},3000);
+  }catch(e){toast('❌ 寄送失敗：'+(e.text||e.message||JSON.stringify(e)),'err');}
+  finally{btn.disabled=false;btn.innerHTML='<i class="ti ti-send" style="font-size:14px;vertical-align:-1px;margin-right:6px"></i>寄送臨時密碼';}
+}
+// 驗證帳號密碼；若為臨時密碼則強制跳轉重設頁
+function login(){
+  const u=val('lu'),p=$('lp').value;
+  if(!u||!p)return toast('請填寫帳號與密碼','err');
+  const key=db[u]?u:Object.keys(db).find(k=>db[k].e===u);
+  if(!key||db[key].p!==p)return toast('帳號或密碼錯誤','err');
+  if(db[key].tmp){
+    curUser=key;$('np').value='';$('np2').value='';
+    $('swB').style.display='none';$('mhB').style.display='none';
+    score.B=0;$('rb2').disabled=true;
+    toast('⚠ 請立即設定新密碼','info');go('rp_sec');
+  }else toast('登入成功！歡迎 '+key,'ok');
+}
+// 確認新密碼填寫完整且強度 ≥ 40 分，才啟用「確認更新」按鈕
+function chkR(){const p1=$('np').value,p2=$('np2').value;$('rb2').disabled=!(p1&&p2&&p1===p2&&score.B>=40);}
+// 將新密碼寫入 db，清除臨時標記，返回登入頁
+function doReset(){
+  if(!curUser)return toast('請重新登入','err');
+  db[curUser].p=$('np').value;db[curUser].tmp=false;
+  toast('✓ 密碼已更新！請重新登入','ok');curUser=null;
+  setTimeout(()=>{$('np').value='';$('np2').value='';$('lp').value='';go('li');},1500);
+}
+// 確認所有欄位填寫且密碼強度 ≥ 40 分，才啟用「建立帳號」按鈕
+function chk(){const p1=$('rp').value,p2=$('rp2').value;$('rb').disabled=!(val('ru')&&val('re')&&p1&&p2&&p1===p2&&score.A>=40);}
+// 驗證表單並將帳號存入 db，成功後自動跳回登入頁
+function reg(){
+  const u=val('ru'),e=val('re'),p=$('rp').value;
+  if(!e.includes('@'))return toast('請輸入有效 Email','err');
+  if(db[u])return toast('此帳號已存在','err');
+  if(score.A<40)return toast('密碼強度不足','err');
+  db[u]={e,p,tmp:false};toast('帳號建立成功！','ok');
+  setTimeout(()=>{['ru','re','rp','rp2'].forEach(id=>$(id).value='');$('swA').style.display='none';$('mhA').style.display='none';score.A=0;go('li');$('lu').value=u;},1200);
+}
+const S=id=>$('s-'+id);
+// 清除字典攻擊面板的日誌與所有統計數值
+function daReset(){
+  clearInterval(daTimer);
+  $('da-log').innerHTML='<span style="color:#334155">等待輸入密碼…</span>';
+  $('da-res').style.display='none';$('da-info').style.display='none';
+  ['cnt','spd','time','pct','rank','total','char','ent','threat','est'].forEach(k=>S(k).textContent=k==='cnt'?'0':k==='pct'?'0%':'—');
+  $('da-go').disabled=false;
+}
+// 啟動字典攻擊模擬：每批 5 筆、每 50ms 執行，命中時顯示風險分析
+function startDA(){
+  const pw=$('da-pw').value.trim();
+  if(!pw)return;
+  clearInterval(daTimer);
+  const log=$('da-log'),res=$('da-res'),info=$('da-info');
+  log.innerHTML='';res.style.display='none';info.style.display='none';
+  $('da-go').disabled=true;
+  const dict=[...new Set(COM)];
+  const cs=csSize(pw),ent=entropy(pw),ct=crackTime(ent),ur=(new Set(pw).size/pw.length*100).toFixed(0);
+  S('total').textContent=dict.length; S('char').textContent=cs+'種';
+  S('ent').textContent=ent.toFixed(1)+' bits'; S('est').textContent=ct;
+  let i=0,found=false;
+  const t0=performance.now();
+  daTimer=setInterval(()=>{
+    for(let b=0;b<5&&i<dict.length;b++,i++){
+      const w=dict[i],hit=w.toLowerCase()===pw.toLowerCase();
+      const line=document.createElement('div');
+      if(hit){
+        line.className='hit';
+        line.textContent=`[${i+1}] ✓ 命中！"${w}" — 類別：${CAT_LABEL[COM_CAT[w]]||'常見密碼'}`;
+        log.appendChild(line);log.scrollTop=log.scrollHeight;found=true;
+      }else{
+        line.className='miss';line.textContent=`[${i+1}] ✗ "${w}"`;
+        log.appendChild(line);
+        if(log.children.length>100)log.removeChild(log.firstChild);
+        log.scrollTop=log.scrollHeight;
+      }
+      const el=performance.now()-t0;
+      S('cnt').textContent=i+1; S('time').textContent=Math.round(el);
+      S('spd').textContent=el>0?Math.round((i+1)/(el/1000)).toLocaleString():'—';
+      S('pct').textContent=Math.round((i+1)/dict.length*100)+'%';
+      if(hit){
+        clearInterval(daTimer);$('da-go').disabled=false;
+        const th=i+1<=10?'🔴 極高':i+1<=30?'🟠 高':i+1<=80?'🟡 中':'🟢 低';
+        S('rank').textContent='#'+(i+1);S('threat').textContent=th;
+        const ck=COM_CAT[w]||'common';
+        res.textContent=`⚠ 第 ${i+1} 筆命中！此密碼屬「${CAT_LABEL[ck]}」，極度危險`;
+        res.className='da-res found';res.style.display='block';
+        info.style.display='block';
+        info.innerHTML=`<b style="color:#f87171">風險分析</b><br>類別：${CAT_LABEL[ck]}<br>字典排名：第 ${i+1} / ${dict.length} 筆<br>密碼長度：${pw.length} 碼（${pw.length<8?'⚠ 過短':'✓ 尚可'}）<br>字元多樣性：${ur}%<br>字元集大小：${cs} 種<br>熵值：${ent.toFixed(1)} bits（建議 > 60 bits）<br>理論破解時間：${ct}<br><b style="color:#fbbf24">建議：立即更換為含大小寫、數字、符號的 12 碼以上密碼</b>`;
+        break;
+      }
+    }
+    if(!found&&i>=dict.length){
+      clearInterval(daTimer);$('da-go').disabled=false;
+      const el=performance.now()-t0;
+      S('time').textContent=Math.round(el);S('rank').textContent='未命中';S('pct').textContent='100%';S('threat').textContent='🟢 低';
+      const line=document.createElement('div');
+      line.style.color='#4ade80';line.textContent=`── 掃描完畢，比對 ${dict.length} 筆，未找到 ──`;
+      log.appendChild(line);log.scrollTop=log.scrollHeight;
+      res.textContent=`✓ 未在 ${dict.length} 筆字典中找到`;
+      res.className='da-res safe';res.style.display='block';
+      const{s}=calc(pw);
+      info.style.display='block';
+      info.innerHTML=`<b style="color:#4ade80">安全分析</b><br>未出現在常見密碼字典中 ✓<br>密碼長度：${pw.length} 碼（${pw.length>=12?'✓ 良好':pw.length>=8?'⚠ 建議延長至 12 碼':'✗ 過短'}）<br>字元多樣性：${ur}%<br>字元集大小：${cs} 種<br>熵值：${ent.toFixed(1)} bits（${ent>=60?'✓ 安全':ent>=40?'⚠ 尚可':'✗ 偏低'}）<br>理論破解時間：${ct}<br>強度評分：${s}/100（${s>=70?'強 ✓':s>=40?'中 ◑':'弱 ⚠'}）<br>${s<70?'<b style="color:#fbbf24">建議：加入大寫字母、數字與特殊符號來提升強度</b>':'<b style="color:#4ade80">此密碼強度良好，繼續保持</b>'}`;
+    }
+  },50);
+}
+</script>
+</body>
+</html>
